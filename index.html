@@ -55,6 +55,21 @@ header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#1d5a63
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(140,198,63,.6)}70%{box-shadow:0 0 0 8px rgba(140,198,63,0)}100%{box-shadow:0 0 0 0 rgba(140,198,63,0)}}
 .refresh{margin-left:auto;background:rgba(255,255,255,.12);border:0;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;color:#fff}
 .refresh:hover{background:rgba(255,255,255,.2)}
+.toprow{display:flex;align-items:center;gap:16px}
+.toprow .brand{flex:1;min-width:0}
+.sponsors{flex:none;background:#fff;border-radius:12px;padding:12px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.sp-gk{height:74px;width:auto;display:block}
+.sp-by{display:flex;flex-direction:column;align-items:center;gap:4px}
+.sp-by span{font:600 9.5px/1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;color:#6b7280}
+.sp-ll{height:19px;width:auto;display:block}
+@media (max-width:560px){
+  .toprow{flex-wrap:wrap;gap:12px}
+  .toprow .brand{flex-basis:100%}
+  .sponsors{flex-basis:100%;flex-direction:row;justify-content:center;gap:14px;padding:8px 12px}
+  .sp-gk{height:40px}
+  .sp-by{border-left:1px solid #e5e7eb;padding-left:14px;align-items:flex-start}
+  .sp-ll{height:15px}
+}
 nav{display:flex;gap:4px;margin-top:14px}
 nav button{flex:1;background:none;border:0;color:#c9d1ea;padding:11px 6px 12px;font:700 15px/1 "Barlow Condensed",sans-serif;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;border-bottom:3px solid transparent}
 nav button[aria-selected="true"]{color:#fff;border-bottom-color:var(--accent)}
@@ -161,11 +176,20 @@ footer{text-align:center;color:var(--ink3);font-size:12px;padding:0 16px 32px}
 <body>
 <header>
   <div class="hwrap">
+    <div class="toprow">
     <div class="brand">
       <img src="logos/lpbl.png" alt="LPBL logo" onerror="this.onerror=null;this.src='lpbl.png'">
       <div>
         <h1>Lodha Park <span>Badminton League</span> 2026</h1>
         <p>23 Oct – 1 Nov · 10 teams · 45 league ties</p>
+      </div>
+    </div>
+      <div class="sponsors">
+        <img class="sp-gk" src="logos/gurukul.png" alt="Badminton Gurukul" onerror="this.onerror=null;this.src='gurukul.png'">
+        <div class="sp-by">
+          <span>Supported by</span>
+          <img class="sp-ll" src="logos/lloyds.png" alt="Lloyds Metals" onerror="this.onerror=null;this.src='lloyds.png'">
+        </div>
       </div>
     </div>
     <div class="status">
