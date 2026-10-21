@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LPBL 2026 · Points Table</title>
+<meta name="description" content="Live points table, results and knockouts for the Lodha Park Badminton League 2026.">
+<meta property="og:title" content="LPBL 2026 · Live Points Table">
+<meta property="og:description" content="Live standings, results and knockouts for the Lodha Park Badminton League 2026.">
+<meta property="og:image" content="logos/lpbl.png">
+<link rel="icon" href="logos/lpbl.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ====================================================================
+   SETTINGS: the only line you need to edit is SHEET_ID in the script
+   at the bottom of this file.
+   ==================================================================== */
+:root{
+  --bg:#eef2f7; --card:#ffffff; --ink:#131a33; --ink2:#55607a; --ink3:#8a93a8; --line:#e2e7f0;
+  --navy:#1f2a5a; --navy2:#2b3a7a; --accent:#8cc63f; --accent-ink:#3d7a12; --teal:#2bb3a3;
+  --win:#1e9e5a; --win-bg:#e3f5ea; --loss:#d64545; --loss-bg:#fbe6e6; --live:#e2462f;
+  --q:#1e9e5a; --e:#a3abbd; --gold:#f2b705; --row-hi:#f5f9ff; --shadow:0 1px 2px rgba(19,26,51,.06),0 6px 20px rgba(19,26,51,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1022; --card:#151b33; --ink:#eef1f8; --ink2:#a9b2c8; --ink3:#727b93; --line:#252d4a;
+    --navy:#0f1530; --navy2:#1c2650; --accent:#9bd44f; --accent-ink:#9bd44f;
+    --win:#3ccf7f; --win-bg:#173a2a; --loss:#ff7b7b; --loss-bg:#3d1d24; --row-hi:#1a2142; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1022; --card:#151b33; --ink:#eef1f8; --ink2:#a9b2c8; --ink3:#727b93; --line:#252d4a;
+  --navy:#0f1530; --navy2:#1c2650; --accent:#9bd44f; --accent-ink:#9bd44f;
+  --win:#3ccf7f; --win-bg:#173a2a; --loss:#ff7b7b; --loss-bg:#3d1d24; --row-hi:#1a2142; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.num,.cond{font-family:"Barlow Condensed",Inter,sans-serif}
+button{font:inherit;color:inherit}
+
+/* header */
+header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#1d5a63 100%);color:#fff;padding:18px 16px 0}
+.hwrap{max-width:860px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:14px}
+.brand img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.brand h1{margin:0;font:800 30px/1 "Barlow Condensed",sans-serif;letter-spacing:.5px;text-transform:uppercase}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:4px 0 0;font-size:13px;color:#c9d1ea}
+.status{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:#c9d1ea;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(140,198,63,.7);animation:pulse 2s infinite}
+.dot.err{background:#ff9f43;animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(140,198,63,.6)}70%{box-shadow:0 0 0 8px rgba(140,198,63,0)}100%{box-shadow:0 0 0 0 rgba(140,198,63,0)}}
+.refresh{margin-left:auto;background:rgba(255,255,255,.12);border:0;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;color:#fff}
+.refresh:hover{background:rgba(255,255,255,.2)}
+.toprow{display:flex;align-items:center;gap:16px}
+.toprow .brand{flex:1;min-width:0}
+.sponsors{flex:none;background:#fff;border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.sp-gk{height:56px;width:auto;display:block}
+.sp-by{display:flex;flex-direction:column;align-items:center;gap:4px;border-top:1px solid #e5e7eb;padding-top:5px;width:100%}
+.sp-by span{font:600 8px/1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;color:#6b7280}
+.sp-row{display:flex;align-items:center;gap:8px}
+.sp-si{height:28px;width:auto;display:block}
+.sp-ll{height:12px;width:auto;display:block}
+@media (max-width:560px){
+  .toprow{flex-wrap:wrap;gap:12px}
+  .toprow .brand{flex-basis:100%}
+  .sponsors{flex-basis:100%;flex-direction:row;justify-content:center;gap:10px;padding:6px 10px}
+  .sp-gk{height:38px}
+  .sp-by{border-top:0;padding-top:0;border-left:1px solid #e5e7eb;padding-left:10px;width:auto;align-items:flex-start}
+  .sp-row{gap:10px}
+  .sp-si{height:22px}
+  .sp-ll{height:10px}
+}
+nav{display:flex;gap:4px;margin-top:14px}
+nav button{flex:1;background:none;border:0;color:#c9d1ea;padding:11px 6px 12px;font:700 15px/1 "Barlow Condensed",sans-serif;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;border-bottom:3px solid transparent}
+nav button[aria-selected="true"]{color:#fff;border-bottom-color:var(--accent)}
+
+main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.sec-title{display:flex;align-items:baseline;justify-content:space-between;margin:26px 2px 10px;gap:12px}
+.sec-title h2{margin:0;font:800 20px/1 "Barlow Condensed",sans-serif;letter-spacing:.6px;text-transform:uppercase}
+.sec-title small{color:var(--ink3);font-size:12px}
+.banner{background:#fff4e0;color:#7a4b00;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px}
+[data-theme="dark"] .banner{background:#3a2c10;color:#ffd58a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .banner{background:#3a2c10;color:#ffd58a}}
+.hidden{display:none!important}
+
+/* points table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font:600 11px/1 Inter,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--ink3);padding:12px 6px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th.l{text-align:left}
+.tbl td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr{position:relative;background:var(--card)}
+.tbl tbody tr.cut td{border-bottom:2px dashed var(--accent)}
+.pos{width:46px;font:700 19px/1 "Barlow Condensed",sans-serif;position:relative}
+.pos .mv{display:block;font:600 10px/1 Inter,sans-serif;margin-top:3px}
+.mv.up{color:var(--win)} .mv.down{color:var(--loss)}
+.team{display:flex;align-items:center;gap:10px;text-align:left;min-width:0}
+.team img{width:36px;height:36px;border-radius:9px;flex:none;object-fit:cover;background:#ddd}
+.team b{display:block;font-weight:600;font-size:14.5px;line-height:1.2}
+.team small{display:block;color:var(--ink3);font-size:11.5px;margin-top:2px}
+.tag{display:inline-block;font:700 10px/1 Inter,sans-serif;padding:3px 5px;border-radius:4px;margin-left:5px;vertical-align:2px}
+.tag.q{background:var(--win-bg);color:var(--q)} .tag.e{background:var(--line);color:var(--ink3)}
+.n{font:600 17px/1 "Barlow Condensed",sans-serif;color:var(--ink2)}
+.pts{font:800 21px/1 "Barlow Condensed",sans-serif;color:var(--ink)}
+.pts.flash{animation:flash 1.6s ease}
+@keyframes flash{0%{color:var(--accent-ink);transform:scale(1.35)}100%{transform:scale(1)}}
+.pd.pos-pd{color:var(--win)} .pd.neg-pd{color:var(--loss)}
+.form{display:flex;gap:3px;justify-content:center}
+.form i{width:19px;height:19px;border-radius:50%;font:700 10px/19px Inter,sans-serif;font-style:normal;color:#fff}
+.form i.W{background:var(--win)} .form i.L{background:var(--loss)} .form i.N{background:var(--line)}
+.top4 td:first-child{box-shadow:inset 4px 0 0 var(--accent)}
+.legend{padding:12px 14px;font-size:12px;color:var(--ink3);border-top:1px solid var(--line);line-height:1.6}
+.legend b{color:var(--ink2);font-weight:600}
+@media (max-width:560px){
+  .brand img{width:50px;height:50px}
+  .brand h1{font-size:23px}
+  .hide-sm{display:none}
+  .tbl th,.tbl td{padding-left:4px;padding-right:4px}
+  .team img{width:30px;height:30px}
+  .team b{font-size:13.5px}
+  .form i{width:15px;height:15px;font-size:0;line-height:15px}
+  .form{gap:2px}
+  .pos{width:34px}
+}
+
+/* knockouts */
+.ko{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ko .final{grid-column:1/-1}
+.kocard{padding:14px}
+.kocard h3{margin:0 0 10px;font:700 13px/1 Inter,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);display:flex;justify-content:space-between}
+.kocard h3 span{font-weight:500;letter-spacing:0;text-transform:none}
+.korow{display:flex;align-items:center;gap:9px;padding:6px 0}
+.korow img{width:28px;height:28px;border-radius:7px;object-fit:cover}
+.korow .ph{width:28px;height:28px;border-radius:7px;background:var(--line);display:grid;place-items:center;font:700 12px "Barlow Condensed";color:var(--ink3)}
+.korow .nm{flex:1;font-weight:600;font-size:14px;min-width:0}
+.korow .nm small{display:block;font-weight:500;color:var(--ink3);font-size:11px}
+.korow .sc{font:800 22px/1 "Barlow Condensed",sans-serif;min-width:22px;text-align:right}
+.korow.won .nm{color:var(--win)}
+.final{background:linear-gradient(135deg,rgba(242,183,5,.12),transparent 60%),var(--card)}
+.champ{margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(242,183,5,.18);font-weight:700;font-size:14px;text-align:center}
+@media (max-width:560px){.ko{grid-template-columns:1fr}}
+
+/* matches */
+.filters{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+select{font:inherit;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);flex:1;max-width:320px}
+.day{margin:22px 2px 8px;font:700 14px/1 Inter,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2)}
+.tie{margin-bottom:10px}
+.tiehead{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:13px 14px;cursor:pointer;width:100%;background:none;border:0;text-align:left}
+.side{display:flex;align-items:center;gap:9px;min-width:0}
+.side.r{flex-direction:row-reverse;text-align:right}
+.side img{width:34px;height:34px;border-radius:9px;object-fit:cover;flex:none}
+.side span{font-weight:600;font-size:14px;line-height:1.2}
+.side.w span{color:var(--win)}
+.mid{text-align:center;min-width:86px}
+.mid .score{font:800 26px/1 "Barlow Condensed",sans-serif;letter-spacing:1px}
+.mid .time{font:700 17px/1 "Barlow Condensed",sans-serif}
+.mid small{display:block;font-size:10.5px;color:var(--ink3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.mid small.live{color:var(--live)}
+.mid small.live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--live);margin-right:4px;vertical-align:1px;animation:pulse 2s infinite}
+.detail{border-top:1px solid var(--line);padding:4px 0}
+.mrow{display:grid;grid-template-columns:62px 1fr 64px 1fr;gap:8px;align-items:center;padding:7px 14px;font-size:12.5px}
+.mrow:nth-child(odd){background:var(--row-hi)}
+.mrow .cat{font:600 11px/1.2 Inter;color:var(--ink3)}
+.mrow .pl{color:var(--ink2);min-width:0;overflow-wrap:anywhere}
+.mrow .pl.r{text-align:right}
+.mrow .pl.w{color:var(--ink);font-weight:600}
+.mrow .s{text-align:center;font:700 16px/1 "Barlow Condensed",sans-serif;white-space:nowrap}
+.mrow .s.pend{color:var(--ink3);font-weight:500;font-size:13px}
+@media (max-width:560px){.mrow{grid-template-columns:44px 1fr 52px 1fr;padding:7px 10px;font-size:12px}.side img{width:28px;height:28px}.side span{font-size:13px}.mid{min-width:70px}}
+
+footer{text-align:center;color:var(--ink3);font-size:12px;padding:0 16px 32px}
+.skeleton{padding:40px;text-align:center;color:var(--ink3)}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="toprow">
+    <div class="brand">
+      <img src="logos/lpbl.png" alt="LPBL logo" onerror="this.onerror=null;this.src='lpbl.png'">
+      <div>
+        <h1>Lodha Park <span>Badminton League</span> 2026</h1>
+        <p>23 Oct – 1 Nov · 10 teams · 45 league ties</p>
+      </div>
+    </div>
+      <div class="sponsors">
+        <img class="sp-gk" src="logos/gurukul.png" alt="Badminton Gurukul, an initiative by Pullela Gopichand" onerror="this.onerror=null;this.src='gurukul.png'">
+        <div class="sp-by">
+          <span>Supported by</span>
+          <div class="sp-row">
+            <img class="sp-si" src="logos/serum.png" alt="Serum Institute of India" onerror="this.onerror=null;this.src='serum.png'">
+            <img class="sp-ll" src="logos/lloyds.png" alt="Lloyds Metals" onerror="this.onerror=null;this.src='lloyds.png'">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="status">
+      <span class="dot" id="dot"></span><span id="updated">Loading live scores…</span>
+      <button class="refresh" id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
+    <nav role="tablist">
+      <button role="tab" data-tab="table" aria-selected="true">Points Table</button>
+      <button role="tab" data-tab="matches" aria-selected="false">Matches</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div id="banner" class="banner hidden"></div>
+
+  <section id="tab-table">
+    <div class="card">
+      <table class="tbl" aria-label="Points table">
+        <thead><tr>
+          <th>#</th><th class="l">Team</th>
+          <th title="Matches played">P</th><th title="Matches won">W</th><th title="Matches lost">L</th>
+          <th title="Points difference: rally points scored minus conceded">PD</th>
+          <th title="Points = matches won">Pts</th><th class="hide-sm" title="Last 5 ties">Last 5</th>
+        </tr></thead>
+        <tbody id="tbody"><tr><td colspan="8" class="skeleton">Loading…</td></tr></tbody>
+      </table>
+      <div class="legend">
+        <b>P/W/L</b> matches played/won/lost · <b>Pts</b> 1 per match won · <b>PD</b> rally points scored − conceded ·
+        <b>Last 5</b> tie results · <span class="tag q" style="margin:0">Q</span> qualified ·
+        <span class="tag e" style="margin:0">E</span> eliminated · Top 4 (green bar) reach the semi-finals ·
+        Ties broken by PD, then a tie-breaker match · <span id="mvnote"></span>
+      </div>
+    </div>
+
+    <div class="sec-title"><h2>Knockouts</h2><small>Sun 1 Nov</small></div>
+    <div class="ko" id="ko"></div>
+  </section>
+
+  <section id="tab-matches" class="hidden">
+    <div class="filters">
+      <select id="teamFilter" aria-label="Filter by team"><option value="">All teams</option></select>
+    </div>
+    <div id="matches"></div>
+  </section>
+</main>
+<footer>Scores update automatically every minute · Tap a match to see the players and scores</footer>
+
+<script>
+/* ===================== SETTINGS ===================== */
+// Paste the ID of your Google Sheet between the quotes.
+// It's the long code in the sheet's address: docs.google.com/spreadsheets/d/THIS_PART/edit
+const SHEET_ID = "1O4svwsZ85mdGRPgXx07juEYfQwFba62Q2qnwPZSdnGU";
+const REFRESH_SECONDS = 60;
+/* ==================================================== */
+
+const TEAMS = ["Drop Mafia","Racquet Rebels","Court Commanders","Power Players","Smash Squad",
+  "Court Crushers","Ace Avengers","Net Ninjas","Serving Aces","Shuttle Hustle"];
+const LOGO = t => "logos/" + t.toLowerCase().replace(/\s+/g,"-") + ".webp";
+const LEAGUE_MATCHES = 81; // 9 ties x 9 matches
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function sheetUrl(name){
+  const q = new URLSearchParams(location.search);
+  if (q.get(name.toLowerCase())) return q.get(name.toLowerCase()); // local testing only
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(name)}`;
+}
+
+function parseCSV(text){
+  const rows=[]; let row=[], f="", q=false;
+  for (let i=0;i<text.length;i++){
+    const c=text[i];
+    if (q){ if (c==='"'){ if (text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if (c==='"') q=true;
+    else if (c===','){ row.push(f); f=""; }
+    else if (c==='\n'||c==='\r'){ if (c==='\r'&&text[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=""; }
+    else f+=c;
+  }
+  if (f!==""||row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+
+const num = v => { const s=String(v??"").trim(); if (s==="") return null; const n=Number(s); return Number.isFinite(n)?n:NaN; };
+
+function validScore(stage,a,b){
+  if (a===null||b===null||Number.isNaN(a)||Number.isNaN(b)) return false;
+  if (!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0) return false;
+  const hi=Math.max(a,b), lo=Math.min(a,b);
+  if (stage==="League") return hi===15 && lo<15;
+  return hi>=21 && hi<=30 && lo<hi;
+}
+
+/* ---------- model ---------- */
+function buildTies(rows){
+  const ties=[], byId={};
+  for (const r of rows.slice(1)){
+    const id=(r[0]||"").trim(); if (!id) continue;
+    let t=byId[id];
+    if (!t){ t=byId[id]={id,stage:(r[1]||"").trim(),date:(r[2]||"").trim(),time:(r[3]||"").trim(),
+      A:(r[6]||"").trim(),B:(r[7]||"").trim(),matches:[]}; ties.push(t); }
+    const sa=num(r[12]), sb=num(r[13]);
+    const ok=validScore(t.stage,sa,sb);
+    t.matches.push({n:num(r[4]),cat:(r[5]||"").trim(),a:[r[8],r[9]].map(s=>(s||"").trim()).filter(Boolean),
+      b:[r[10],r[11]].map(s=>(s||"").trim()).filter(Boolean),sa,sb,ok,win:ok?(sa>sb?"A":"B"):null});
+  }
+  for (const t of ties){
+    t.aw=t.matches.filter(m=>m.win==="A").length;
+    t.bw=t.matches.filter(m=>m.win==="B").length;
+    t.played=t.aw+t.bw;
+    t.done = t.stage==="League" ? t.played===9 : (t.aw>=5||t.bw>=5);
+    t.status = t.done ? "done" : (t.played>0 ? "live" : "upcoming");
+    t.winner = t.done ? (t.aw>t.bw?t.A:t.B) : null;
+    t.start = parseWhen(t.date,t.time);
+  }
+  return ties;
+}
+function parseWhen(d,t){
+  const m=/(\d+)\s+(Oct|Nov)/i.exec(d||""), tm=/(\d+):(\d+)\s*(AM|PM)/i.exec(t||"");
+  if (!m||!tm) return 0;
+  let h=+tm[1]%12; if (/pm/i.test(tm[3])) h+=12;
+  return new Date(2026, /oct/i.test(m[2])?9:10, +m[1], h, +tm[2]).getTime();
+}
+
+function standings(ties, tiebreak, excludeDate){
+  const S={};
+  for (const t of TEAMS) S[t]={team:t,p:0,w:0,l:0,pf:0,pa:0,ties:0,form:[],tb:tiebreak[t]};
+  for (const t of ties){
+    if (t.stage!=="League"||!S[t.A]||!S[t.B]) continue;
+    if (excludeDate && t.date===excludeDate) continue;
+    for (const m of t.matches){
+      if (!m.ok) continue;
+      const A=S[t.A], B=S[t.B];
+      A.p++; B.p++; A.pf+=m.sa; A.pa+=m.sb; B.pf+=m.sb; B.pa+=m.sa;
+      if (m.win==="A"){A.w++;B.l++;} else {B.w++;A.l++;}
+    }
+    if (t.done){
+      S[t.A].ties++; S[t.B].ties++;
+      S[t.A].form.push({r:t.aw>t.bw?"W":"L",s:`${t.aw}–${t.bw}`,o:t.B});
+      S[t.B].form.push({r:t.bw>t.aw?"W":"L",s:`${t.bw}–${t.aw}`,o:t.A});
+    }
+  }
+  const list=Object.values(S).map(s=>({...s,pd:s.pf-s.pa,pts:s.w}));
+  const tbv = s => (s.tb==null ? 999 : s.tb);
+  list.sort((x,y)=> y.pts-x.pts || y.pd-x.pd || tbv(x)-tbv(y) || x.team.localeCompare(y.team));
+  list.forEach((s,i)=>{
+    const prev=list[i-1];
+    s.joint = prev && prev.pts===s.pts && prev.pd===s.pd && tbv(prev)===tbv(s);
+    s.pos = s.joint ? prev.pos : i+1;
+  });
+  list.forEach((s,i)=>{ if (list[i+1] && list[i+1].pos===s.pos) s.jointNext=true; });
+  // qualification maths (top 4)
+  for (const s of list) s.max = s.pts + (LEAGUE_MATCHES - s.p);
+  for (const s of list){
+    const canCatch = list.filter(o=>o!==s && o.max>=s.pts).length;
+    const already = list.filter(o=>o!==s && o.pts>s.max).length;
+    s.q = s.p>0 && canCatch<=3;
+    s.e = already>=4;
+  }
+  return list;
+}
+
+/* ---------- render ---------- */
+let lastRender = {pts:{}};
+function renderTable(list, before, anyPlayed, moveDate){
+  const tb=document.getElementById("tbody");
+  // FLIP: remember old row positions
+  const oldTop={};
+  tb.querySelectorAll("tr[data-team]").forEach(tr=>oldTop[tr.dataset.team]=tr.getBoundingClientRect().top);
+  const prevRank={}; if (before) before.forEach(s=>prevRank[s.team]=s.pos);
+  tb.innerHTML = list.map((s,i)=>{
+    let mv="";
+    if (before && anyPlayed && prevRank[s.team]!=null && prevRank[s.team]!==s.pos){
+      const d=prevRank[s.team]-s.pos;
+      mv=`<span class="mv ${d>0?"up":"down"}">${d>0?"▲":"▼"}${Math.abs(d)}</span>`;
+    }
+    const form=[...s.form].slice(-5);
+    while (form.length<5) form.unshift(null);
+    const formHtml=form.map(f=>f?`<i class="${f.r}" title="${f.r==="W"?"Won":"Lost"} ${f.s} vs ${esc(f.o)}">${f.r}</i>`:`<i class="N"></i>`).join("");
+    const tag = s.q ? `<span class="tag q" title="Qualified for semi-finals">Q</span>` : (s.e ? `<span class="tag e" title="Cannot reach top 4">E</span>` : "");
+    const posTxt = anyPlayed ? (s.pos + ((s.joint||s.jointNext)?"=":"")) : "–";
+    const flash = lastRender.pts[s.team]!=null && lastRender.pts[s.team]!==s.pts ? " flash" : "";
+    return `<tr data-team="${esc(s.team)}" class="${i<4?"top4":""} ${i===3?"cut":""}">
+      <td class="pos">${posTxt}${mv}</td>
+      <td><div class="team"><img src="${LOGO(s.team)}" alt=""><div style="min-width:0"><b>${esc(s.team)}${tag}</b><small>${s.ties} of 9 ties played</small></div></div></td>
+      <td class="n">${s.p}</td><td class="n">${s.w}</td><td class="n">${s.l}</td>
+      <td class="n pd ${s.pd>0?"pos-pd":s.pd<0?"neg-pd":""}">${s.pd>0?"+":""}${s.pd}</td>
+      <td class="pts${flash}">${s.pts}</td>
+      <td class="hide-sm"><div class="form">${formHtml}</div></td></tr>`;
+  }).join("");
+  lastRender.pts = Object.fromEntries(list.map(s=>[s.team,s.pts]));
+  // FLIP animate
+  tb.querySelectorAll("tr[data-team]").forEach(tr=>{
+    const o=oldTop[tr.dataset.team]; if (o==null) return;
+    const dy=o-tr.getBoundingClientRect().top; if (!dy) return;
+    tr.animate([{transform:`translateY(${dy}px)`},{transform:"translateY(0)"}],{duration:900,easing:"cubic-bezier(.2,.8,.2,1)"});
+  });
+  document.getElementById("mvnote").textContent = (before&&anyPlayed&&moveDate) ? `▲▼ change since start of play on ${moveDate}` : "";
+}
+
+function koSide(name, label, score, won){
+  const known = TEAMS.includes(name);
+  const img = known ? `<img src="${LOGO(name)}" alt="">` : `<div class="ph">?</div>`;
+  return `<div class="korow ${won?"won":""}">${img}<div class="nm">${esc(known?name:label)}${known&&label?`<small>${esc(label)}</small>`:""}</div><div class="sc">${score??""}</div></div>`;
+}
+function renderKO(ties, list, leagueDone){
+  const by=Object.fromEntries(ties.map(t=>[t.id,t]));
+  const proj = i => list[i] ? list[i].team : "";
+  const ord=["1st","2nd","3rd","4th"];
+  const card=(id,title,seedA,seedB,cls="")=>{
+    const t=by[id]||{matches:[],aw:0,bw:0,status:"upcoming",date:"",time:""};
+    let A=t.A, B=t.B, la="", lb="";
+    if (!TEAMS.includes(A)){ if (seedA!=null){ A=leagueDone?"":proj(seedA); la=leagueDone?"":`${ord[seedA]} place (projected)`; if(!A) la=`${ord[seedA]} place`; } else la=A||"TBD"; }
+    if (!TEAMS.includes(B)){ if (seedB!=null){ B=leagueDone?"":proj(seedB); lb=leagueDone?"":`${ord[seedB]} place (projected)`; if(!B) lb=`${ord[seedB]} place`; } else lb=B||"TBD"; }
+    if (TEAMS.includes(t.A)&&seedA!=null) la=`${ord[seedA]} place`;
+    if (TEAMS.includes(t.B)&&seedB!=null) lb=`${ord[seedB]} place`;
+    const started=t.played>0;
+    const sub = t.status==="done" ? "Final score" : t.status==="live" ? "Live" : `${t.time||""}`;
+    let champ="";
+    if (id==="F" && t.done) champ=`<div class="champ">🏆 ${esc(t.winner)} are the LPBL 2026 champions</div>`;
+    return `<div class="card kocard ${cls}"><h3>${title}<span>${esc(sub)}</span></h3>
+      ${koSide(A,la,started?t.aw:null,t.done&&t.aw>t.bw)}${koSide(B,lb,started?t.bw:null,t.done&&t.bw>t.aw)}${champ}</div>`;
+  };
+  document.getElementById("ko").innerHTML =
+    card("SF1","Semi-final 1",0,3) + card("SF2","Semi-final 2",1,2) + card("F","Final",null,null,"final");
+}
+
+const openTies=new Set();
+function renderMatches(ties){
+  const f=document.getElementById("teamFilter").value;
+  const shown=ties.filter(t=>!f||t.A===f||t.B===f);
+  const days=[]; const byDay={};
+  for (const t of shown){ if(!byDay[t.date]){byDay[t.date]=[];days.push(t.date);} byDay[t.date].push(t); }
+  const live=shown.filter(t=>t.status==="live");
+  const tieHtml=t=>{
+    const named=TEAMS.includes(t.A)&&TEAMS.includes(t.B);
+    const nameA=named?t.A:(t.A||"TBD"), nameB=named?t.B:(t.B||"TBD");
+    const label=t.stage==="League"?"":`${t.stage==="Final"?"Final":t.id==="SF1"?"Semi-final 1":"Semi-final 2"} · `;
+    const mid = t.status==="upcoming"
+      ? `<div class="time">${esc(t.time)}</div><small>${esc(label)}${t.stage==="League"?"Upcoming":""}</small>`
+      : `<div class="score">${t.aw}–${t.bw}</div><small class="${t.status==="live"?"live":""}">${esc(label)}${t.status==="live"?"Live":"Full time"}</small>`;
+    const img=n=>TEAMS.includes(n)?`<img src="${LOGO(n)}" alt="">`:"";
+    const open=openTies.has(t.id);
+    const rows=t.matches.map(m=>{
+      const s = m.ok ? `${m.sa}–${m.sb}` : (m.sa!=null||m.sb!=null ? "check" : "–");
+      return `<div class="mrow"><span class="cat">${esc(m.cat.replace(/ \+ /," / "))}</span>
+        <span class="pl ${m.win==="A"?"w":""}">${esc(m.a.join(" / "))||"&nbsp;"}</span>
+        <span class="s ${m.ok?"":"pend"}">${s}</span>
+        <span class="pl r ${m.win==="B"?"w":""}">${esc(m.b.join(" / "))||"&nbsp;"}</span></div>`;
+    }).join("");
+    return `<div class="card tie"><button class="tiehead" data-tie="${esc(t.id)}" aria-expanded="${open}">
+      <div class="side ${t.done&&t.winner===t.A?"w":""}">${img(t.A)}<span>${esc(nameA)}</span></div>
+      <div class="mid">${mid}</div>
+      <div class="side r ${t.done&&t.winner===t.B?"w":""}">${img(t.B)}<span>${esc(nameB)}</span></div>
+    </button><div class="detail ${open?"":"hidden"}">${rows}</div></div>`;
+  };
+  let html="";
+  if (live.length) html+=`<div class="day" style="color:var(--live)">● Live now</div>`+live.map(tieHtml).join("");
+  for (const d of days){
+    html+=`<div class="day">${esc(d)}</div>`+byDay[d].map(tieHtml).join("");
+  }
+  document.getElementById("matches").innerHTML = html || `<div class="skeleton">No matches</div>`;
+}
+
+/* ---------- loop ---------- */
+let state=null, lastOk=null;
+async function fetchText(url){
+  const r=await fetch(url,{cache:"no-store"});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  const t=await r.text();
+  if (/^\s*<|google\.visualization/i.test(t.slice(0,200))) throw new Error("Sheet not shared publicly");
+  return t;
+}
+async function load(){
+  const dot=document.getElementById("dot"), up=document.getElementById("updated"), ban=document.getElementById("banner");
+  if (!SHEET_ID && !new URLSearchParams(location.search).get("matches")){
+    ban.textContent="Setup needed: paste the Google Sheet ID into SHEET_ID in index.html.";
+    ban.classList.remove("hidden"); dot.classList.add("err"); up.textContent="Not connected"; return;
+  }
+  try{
+    const [mt,tt]=await Promise.all([fetchText(sheetUrl("Matches")), fetchText(sheetUrl("Tiebreak")).catch(()=> "")]);
+    const tiebreak={};
+    for (const r of parseCSV(tt).slice(1)){ const n=num(r[1]); if (TEAMS.includes((r[0]||"").trim()) && n!=null && !Number.isNaN(n)) tiebreak[r[0].trim()]=n; }
+    const ties=buildTies(parseCSV(mt));
+    if (!ties.length) throw new Error("No data in Matches sheet");
+    state={ties,tiebreak};
+    render();
+    lastOk=new Date();
+    dot.classList.remove("err"); ban.classList.add("hidden");
+    up.textContent="Live · updated "+lastOk.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  }catch(e){
+    dot.classList.add("err");
+    up.textContent = lastOk ? "Couldn't refresh · showing "+lastOk.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}) : "Couldn't load scores";
+    if (!lastOk){ ban.textContent="Couldn't load scores ("+e.message+"). Check the sheet is shared as 'Anyone with the link: Viewer'."; ban.classList.remove("hidden"); }
+    console.error(e);
+  }
+}
+function render(){
+  if (!state) return;
+  const {ties,tiebreak}=state;
+  const list=standings(ties,tiebreak);
+  const anyPlayed=list.some(s=>s.p>0);
+  // movement: compare with table before the most recent day that has results
+  const datesWithPlay=[...new Set(ties.filter(t=>t.stage==="League"&&t.played>0).map(t=>t.date))];
+  const lastDate=datesWithPlay[datesWithPlay.length-1];
+  const before = datesWithPlay.length>1 ? standings(ties,tiebreak,lastDate) : null;
+  renderTable(list,before,anyPlayed,lastDate);
+  const leagueDone=ties.filter(t=>t.stage==="League").every(t=>t.done);
+  renderKO(ties,list,leagueDone);
+  renderMatches(ties);
+}
+
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.getElementById("tab-table").classList.toggle("hidden",b.dataset.tab!=="table");
+  document.getElementById("tab-matches").classList.toggle("hidden",b.dataset.tab!=="matches");
+  try{ history.replaceState(null,"","#"+b.dataset.tab); }catch(e){}
+}));
+if (location.hash==="#matches") document.querySelector('nav button[data-tab="matches"]').click();
+const sel=document.getElementById("teamFilter");
+TEAMS.slice().sort().forEach(t=>sel.insertAdjacentHTML("beforeend",`<option>${esc(t)}</option>`));
+sel.addEventListener("change",()=>state&&renderMatches(state.ties));
+document.getElementById("matches").addEventListener("click",e=>{
+  const b=e.target.closest(".tiehead"); if(!b) return;
+  const id=b.dataset.tie, d=b.nextElementSibling;
+  if (openTies.has(id)) openTies.delete(id); else openTies.add(id);
+  d.classList.toggle("hidden"); b.setAttribute("aria-expanded",openTies.has(id));
+});
+document.getElementById("refreshBtn").addEventListener("click",load);
+// If the logo files were uploaded without the "logos" folder, load them from the main folder instead.
+document.addEventListener("error",e=>{
+  const im=e.target;
+  if (im && im.tagName==="IMG" && !im.dataset.fb && /\/logos\//.test(im.src)){ im.dataset.fb="1"; im.src=im.src.replace("/logos/","/"); }
+},true);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) load(); });
+load();
+setInterval(()=>{ if(!document.hidden) load(); }, REFRESH_SECONDS*1000);
+</script>
+</body>
+</html>
