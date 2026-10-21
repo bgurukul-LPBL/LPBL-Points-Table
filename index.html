@@ -162,7 +162,7 @@ footer{text-align:center;color:var(--ink3);font-size:12px;padding:0 16px 32px}
 <header>
   <div class="hwrap">
     <div class="brand">
-      <img src="logos/lpbl.png" alt="LPBL logo">
+      <img src="logos/lpbl.png" alt="LPBL logo" onerror="this.onerror=null;this.src='lpbl.png'">
       <div>
         <h1>Lodha Park <span>Badminton League</span> 2026</h1>
         <p>23 Oct – 1 Nov · 10 teams · 45 league ties</p>
@@ -494,6 +494,11 @@ document.getElementById("matches").addEventListener("click",e=>{
   d.classList.toggle("hidden"); b.setAttribute("aria-expanded",openTies.has(id));
 });
 document.getElementById("refreshBtn").addEventListener("click",load);
+// If the logo files were uploaded without the "logos" folder, load them from the main folder instead.
+document.addEventListener("error",e=>{
+  const im=e.target;
+  if (im && im.tagName==="IMG" && !im.dataset.fb && /\/logos\//.test(im.src)){ im.dataset.fb="1"; im.src=im.src.replace("/logos/","/"); }
+},true);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) load(); });
 load();
 setInterval(()=>{ if(!document.hidden) load(); }, REFRESH_SECONDS*1000);
